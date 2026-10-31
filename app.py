@@ -52,11 +52,20 @@ h1, h2, h3 {{ font-family: 'Space Grotesk', sans-serif !important; font-weight: 
 .badge {{ display: inline-block; border: 3px solid {INK}; border-radius: 999px; padding: 2px 10px; margin: 0 6px 6px 0;
   font: 700 12px 'JetBrains Mono', monospace; box-shadow: 2px 2px 0 {INK}; }}
 .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px; margin-top: 18px; }}
-.card {{ background: #fff; border: 4px solid {INK}; box-shadow: 6px 6px 0 {INK}; padding: 16px 14px 12px; position: relative; }}
-.card .no {{ font: 800 12px 'JetBrains Mono', monospace; }}
+.card {{ background: #fff; border: 4px solid {INK}; box-shadow: 6px 6px 0 {INK}; position: relative; }}
+.card .isi {{ padding: 12px 14px; }}
+.card .cover {{ height: 210px; background: {CHIP}; border-bottom: 3px solid {INK}; overflow: hidden; }}
+.card .cover img {{ display: block; position: relative; width: 100%; height: 100%; object-fit: contain; padding: 10px;
+  box-sizing: border-box; background: {CHIP}; }}
+/* ::after hanya dirender saat gambar gagal dimuat -> placeholder judul menggantikan ikon gambar rusak */
+.card .cover img::after {{ content: '📚  ' attr(data-judul); position: absolute; inset: 0; background: {CHIP}; display: flex;
+  align-items: center; justify-content: center; text-align: center; padding: 0 18px; text-transform: uppercase;
+  font: 800 13px 'JetBrains Mono', monospace; }}
+.card .no {{ position: absolute; top: 10px; left: 10px; z-index: 1; background: #fff; border: 2px solid {INK};
+  padding: 0 6px; font: 800 12px 'JetBrains Mono', monospace; }}
 .card .t {{ font-weight: 700; font-size: 16px; line-height: 1.25; margin: 4px 0 6px; }}
 .card .a {{ font-size: 14px; color: #2D2D2D; }}
-.card .pill {{ position: absolute; top: -14px; right: 10px; border: 3px solid {INK}; border-radius: 999px; padding: 1px 10px;
+.card .pill {{ position: absolute; top: -14px; right: 10px; z-index: 1; border: 3px solid {INK}; border-radius: 999px; padding: 1px 10px;
   font: 700 11px 'JetBrains Mono', monospace; box-shadow: 2px 2px 0 {INK}; }}
 .card .why {{ font-size: 12px; background: {CHIP}; border: 2px solid {INK}; padding: 4px 8px; margin-top: 10px; }}
 table.ev {{ border-collapse: collapse; border: 4px solid {INK}; width: 100%; background: #fff; margin-bottom: 18px; }}
@@ -128,8 +137,13 @@ def kartu_buku(isbn, pill, warna_pill=MINT, alasan='', no=None):
     tahun = '' if pd.isna(b['year']) else f' · {int(b["year"])}'
     why = f'<div class="why">karena kamu menyukai <b>{escape(judul(alasan))}</b></div>' if alasan else ''
     nomor = f'<div class="no">#{no:02d}</div>' if no else ''
-    return (f'<div class="card"><span class="pill" style="background:{warna_pill}">{pill}</span>{nomor}'
-            f'<div class="t">{escape(str(b["title"]))}</div><div class="a">{escape(str(b["author"]))}{tahun}</div>{why}</div>')
+    # Cover dari Open Library (URL Amazon di data sudah 403). Kalau cover tidak ada (404), CSS img::after
+    # menampilkan judul dari data-judul sebagai placeholder.
+    cover = (f'<div class="cover"><img src="https://covers.openlibrary.org/b/isbn/{isbn}-M.jpg?default=false" '
+             f'alt="" loading="lazy" data-judul="{escape(str(b["title"])[:60])}"></div>')
+    return (f'<div class="card"><span class="pill" style="background:{warna_pill}">{pill}</span>{nomor}{cover}'
+            f'<div class="isi"><div class="t">{escape(str(b["title"]))}</div>'
+            f'<div class="a">{escape(str(b["author"]))}{tahun}</div>{why}</div></div>')
 
 
 def grid(kartu):
