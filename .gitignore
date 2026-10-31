@@ -1,0 +1,11 @@
+# Allowlist: abaikan semua, lalu izinkan hanya file yang dibutuhkan dashboard di Streamlit Cloud
+/*
+!/.gitignore
+!/app.py
+!/requirements.txt
+!/.streamlit/
+!/artifacts/
+
+# jangan pernah ter-push walau ada di folder yang diizinkan
+/.streamlit/secrets.toml
+__pycache__/
